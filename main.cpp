@@ -57,9 +57,21 @@ int main()
 	// get new snake position
 	vector<Position> snake = {{2, 3}, {3, 3}, {4, 3}, {4, 4}};
 
-	while (true)
+	Keyboard kb;
+	cout << "Testing keyboard";
+	char key = 0;
+	while (key != 'q')
 	{
-		renderGame(snake);
+		key = kb.readKey();
+
+		if (key)
+			cout << "Pressed key: " << key << endl;
+		usleep(10000);
 	}
+	// 	while(true)
+	// {
+	// 	renderGame(snake);
+
+	//}
 	return 0;
 }
