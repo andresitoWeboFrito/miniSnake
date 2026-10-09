@@ -36,7 +36,6 @@ public:
 		{
 			return key;
 		}
-
 		return 0;
 	}
 
