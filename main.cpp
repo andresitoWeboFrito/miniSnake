@@ -98,7 +98,6 @@ void calcNextSnakePosition(GameData &game)
 	}
 
 	// head position
-	// todo: add collision with borders
 	if (checkCrashWithWall(game.snake[0], game.snakeDirection))
 	{
 		game.playing = false;
@@ -169,7 +168,6 @@ void checkForChrash(GameData &game)
 {
 	// check if the snake chrased into itself or into the wall
 
-	// to check the chrash into the wall I have to make it before updating
 }
 
 bool checkCrashWithWall(Position pos, Direction dir)
@@ -215,7 +213,9 @@ int main()
 
 		this_thread::sleep_for(chrono::milliseconds(500));
 	}
-	// TODO: gameover message
+
+	// Gameover message:
+	cout << "Game over! Your score is: " << game.score << endl;
 
 	return 0;
 }
