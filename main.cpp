@@ -31,6 +31,10 @@ void renderGame(const GameData &game)
 		cout << "-";
 	}
 	cout << "+\n";
+
+	// Print counter
+
+	cout << "Score: " << game.score;
 }
 
 // TODO: change name to render objects?
@@ -81,8 +85,8 @@ void handle_input(GameData &game, Keyboard &kb)
 void calcNextSnakePosition(GameData &game)
 {
 	// calc tail position
-	size_t j = game.snake.size() - 1;
-	for (size_t i = game.snake.size(); i > 0; i--)
+	size_t j = game.snake.size() - 2;
+	for (size_t i = game.snake.size() - 1; i > 0; i--)
 	{
 		game.snake[i] = game.snake[j];
 		j--;
@@ -135,7 +139,9 @@ void updateFruit(GameData &game)
 	if (game.fruit.x == game.snake[0].x && game.fruit.y == game.snake[0].y)
 	{
 		game.isFruitValid = false;
-		// TODO: update the points counter!
+		// the idea is to add one segment more to the snake, but the position shouldn't matter as it will be overwriten when calculating the new nake position
+		game.snake.push_back({0, 0});
+		game.score++;
 	}
 }
 
@@ -151,10 +157,11 @@ int main()
 		// parse user input
 		handle_input(game, keyboard);
 
+		//  check the fruit is eaten? and make the snake bigger
+		updateFruit(game);
+
 		// new snake position / points
 		calcNextSnakePosition(game);
-		//  check the fruit is eaten?
-		updateFruit(game);
 
 		// generate the Fruit?
 		if (!game.isFruitValid)
