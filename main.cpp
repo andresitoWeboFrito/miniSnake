@@ -22,7 +22,7 @@ void renderGame(const GameData &game)
 	cout << "+\n";
 
 	// print board
-	renderSnake(game.snake);
+	renderSnake(game.snake, game.fruit);
 
 	// Print bottom border
 	cout << '+';
@@ -33,7 +33,8 @@ void renderGame(const GameData &game)
 	cout << "+\n";
 }
 
-void renderSnake(const vector<Position> &snake)
+// TODO: change name to render objects?
+void renderSnake(const vector<Position> &snake, const Position fruit)
 {
 	for (size_t y = 0; y < HEIGHT; y++)
 	{
@@ -43,6 +44,10 @@ void renderSnake(const vector<Position> &snake)
 			if (isSnake({x, y}, snake))
 			{
 				cout << "s";
+			}
+			else if (isFruit({x, y}, fruit))
+			{
+				cout << "*";
 			}
 			else
 			{
@@ -104,6 +109,36 @@ void calcNextSnakePosition(GameData &game)
 	}
 }
 
+void generateFruit(GameData &game)
+{
+	// Generate the fruit at a random usign the rand()
+	// todo? change it to use the more modern <random> lib?
+
+	game.fruit.x = rand() % WIDTH;
+	game.fruit.y = rand() % HEIGHT;
+
+	game.isFruitValid = true;
+}
+
+bool isFruit(Position pos, Position fruitPos)
+{
+	if (pos.x == fruitPos.x && pos.y == fruitPos.y)
+	{
+		return true;
+	}
+	return false;
+}
+
+void updateFruit(GameData &game)
+{
+	// check for collision between the fruit and the snake
+	if (game.fruit.x == game.snake[0].x && game.fruit.y == game.snake[0].y)
+	{
+		game.isFruitValid = false;
+		// TODO: update the points counter!
+	}
+}
+
 int main()
 {
 	Keyboard keyboard;
@@ -118,6 +153,14 @@ int main()
 
 		// new snake position / points
 		calcNextSnakePosition(game);
+		//  check the fruit is eaten?
+		updateFruit(game);
+
+		// generate the Fruit?
+		if (!game.isFruitValid)
+		{
+			generateFruit(game);
+		}
 
 		// render game
 		renderGame(game);
