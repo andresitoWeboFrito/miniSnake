@@ -35,6 +35,7 @@ struct GameData
 	Direction snakeDirection = Direction::left;
 	Position fruit = {0, 0};
 	bool isFruitValid = false;
+	
 };
 
 bool isSnake(Position pos, const vector<Position> &snake);
