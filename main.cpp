@@ -22,7 +22,7 @@ void renderGame(const GameData &game)
 	cout << "+\n";
 
 	// print board
-	renderSnake(game.snake, game.fruit);
+	renderSnake(game.snake, game.fruit, game.isFruitValid);
 
 	// Print bottom border
 	cout << '+';
@@ -34,22 +34,26 @@ void renderGame(const GameData &game)
 
 	// Print counter
 
-	cout << "Score: " << game.score;
+	cout << "Score: " << game.score << "\n";
 }
 
 // TODO: change name to render objects?
-void renderSnake(const vector<Position> &snake, const Position fruit)
+void renderSnake(const vector<Position> &snake, const Position fruit, bool isFruitValid)
 {
 	for (size_t y = 0; y < HEIGHT; y++)
 	{
 		cout << '|';
 		for (size_t x = 0; x < WIDTH; x++)
 		{
-			if (isSnake({x, y}, snake))
+			if (isSnakeHead({x, y}, snake))
+			{
+				cout << "Ö";
+			}
+			else if (isSnake({x, y}, snake))
 			{
 				cout << "s";
 			}
-			else if (isFruit({x, y}, fruit))
+			else if (isFruit({x, y}, fruit) && isFruitValid)
 			{
 				cout << "*";
 			}
@@ -68,22 +72,23 @@ void handle_input(GameData &game, Keyboard &kb)
 	switch (key)
 	{
 	case 'w':
-		game.snakeDirection = Direction::up;
+		game.snakeDirection = Direction::Up;
 		break;
 	case 's':
-		game.snakeDirection = Direction::down;
+		game.snakeDirection = Direction::Down;
 		break;
 	case 'a':
-		game.snakeDirection = Direction::left;
+		game.snakeDirection = Direction::Left;
 		break;
 	case 'd':
-		game.snakeDirection = Direction::right;
+		game.snakeDirection = Direction::Right;
 		break;
 	}
 }
 
 void calcNextSnakePosition(GameData &game)
 {
+	// Last position of the vector is vector[ vector.size - 1]
 	// calc tail position
 	size_t j = game.snake.size() - 2;
 	for (size_t i = game.snake.size() - 1; i > 0; i--)
@@ -94,22 +99,30 @@ void calcNextSnakePosition(GameData &game)
 
 	// head position
 	// todo: add collision with borders
-	if (game.snakeDirection == Direction::up)
+	if (checkCrashWithWall(game.snake[0], game.snakeDirection))
 	{
-		game.snake[0].y = game.snake[0].y - 1;
+		game.playing = false;
+		return;
 	}
-	else if (game.snakeDirection == Direction::down)
+	else
 	{
-		game.snake[0].y = game.snake[0].y + 1;
-	}
-	else if (game.snakeDirection == Direction::left)
-	{
-		game.snake[0].x = game.snake[0].x - 1;
-	}
+		if (game.snakeDirection == Direction::Up)
+		{
+			game.snake[0].y = game.snake[0].y - 1;
+		}
+		else if (game.snakeDirection == Direction::Down)
+		{
+			game.snake[0].y = game.snake[0].y + 1;
+		}
+		else if (game.snakeDirection == Direction::Left)
+		{
+			game.snake[0].x = game.snake[0].x - 1;
+		}
 
-	else if (game.snakeDirection == Direction::right)
-	{
-		game.snake[0].x = game.snake[0].x + 1;
+		else if (game.snakeDirection == Direction::Right)
+		{
+			game.snake[0].x = game.snake[0].x + 1;
+		}
 	}
 }
 
@@ -145,14 +158,42 @@ void updateFruit(GameData &game)
 	}
 }
 
+bool isSnakeHead(Position pos, const vector<Position> &snake)
+{
+	if (pos.x == snake[0].x && pos.y == snake[0].y)
+		return true;
+	return false;
+};
+
+void checkForChrash(GameData &game)
+{
+	// check if the snake chrased into itself or into the wall
+
+	// to check the chrash into the wall I have to make it before updating
+}
+
+bool checkCrashWithWall(Position pos, Direction dir)
+{
+	if (pos.y == 0 && dir == Direction::Up)
+		return true;
+	else if (pos.y == HEIGHT && dir == Direction::Down)
+		return true;
+	else if (pos.x == 0 && dir == Direction::Left)
+		return true;
+	else if (pos.x == WIDTH && dir == Direction::Right)
+		return true;
+	else
+		return false;
+}
 int main()
 {
 	Keyboard keyboard;
 	GameData game;
 
-	renderGame(game);
 	// Main Game Loop
-	while (true)
+	renderGame(game);
+
+	while (game.playing)
 	{
 		// parse user input
 		handle_input(game, keyboard);
@@ -174,5 +215,7 @@ int main()
 
 		this_thread::sleep_for(chrono::milliseconds(500));
 	}
+	// TODO: gameover message
+
 	return 0;
 }
